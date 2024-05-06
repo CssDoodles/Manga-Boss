@@ -3,12 +3,83 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Page Title</title>
+    <title> . </title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
 
+    <style>
+        .bg {
+            fill:none;
+            stroke:rgba(0, 128, 0, 0.472);
+            stroke-width:1;
+        }
+        path.bg {
+            fill:none;
+            stroke:rgba(0, 128, 0, 0.472);
+            stroke-width:1;
+        }
+        .handrail {
+            fill: white;
+        }
+    </style>
+    <script>
+        // add grid number
+        // ref: https://stackoverflow.com/questions/72479256/svg-generate-increasing-numbers-on-grid
+        document.addEventListener("DOMContentLoaded", () => {
+            const svg = document.querySelector('svg');
+            const bb = svg.getBBox();
+            const strokeWidth = 1;
+
+            //get viewBox and adjust it to avoid overflow caused by grid strokes
+            const [x, y, width, height] = [bb.x, bb.y, bb.width + strokeWidth / 2, bb.height + strokeWidth / 2];
+            svg.setAttribute('viewBox', [x, y, width, height].join(' '));
+            const cols = Math.floor((width - strokeWidth / 2) / 100);
+            const rows = Math.floor((height - strokeWidth / 2) / 100);
+
+            // add labels
+            addGridLabelsCoord(svg, cols, rows, width, height, strokeWidth);
+        });
+
+        function addGridLabelsCoord(svg, cols, rows, width = 1, height = 1, strokeWidth = 1) {
+            // set initial y/x offset according to stroke width to avoid cropped outer strokes
+            let offsetX = (width - strokeWidth / 2) / cols;
+            let offsetY = (height - strokeWidth / 2) / rows;
+            let currentRow = 1;
+            let currentCol = 1;
+            let shiftX = 0;
+            let shiftY = 0;
+            let cellCount = cols * rows;
+            let nameSpace = 'http://www.w3.org/2000/svg';
+
+            // loop through all columns
+            for (let i = 0; i < cellCount; i++) {
+                // if current index is divisible by columns – move to next row
+                if (i > 0 && i % (cols) === 0) {
+                    shiftX = 0;
+                    shiftY += offsetY;
+                    currentCol = 1;
+                    currentRow++;
+                }
+                // add labels only for first row and first columns
+                // if (currentRow == 1 || currentCol == 1) {
+                    let colLabel = currentCol == 1 ? currentRow - 1 : i;
+                    // add new cell to output
+                    let text = document.createElementNS(nameSpace, 'text');
+                    text.setAttribute('x', +(shiftY + offsetX / 2).toFixed(1));
+                    text.setAttribute('y', +(shiftX + offsetY / 2).toFixed(1));
+                    text.setAttribute('dominant-baseline', 'central');
+                    text.setAttribute('text-anchor', 'middle');
+                    text.textContent = colLabel;
+                    svg.appendChild(text);
+                // }
+
+                // increment x offset for next column
+                shiftX += offsetX;
+                currentCol++;
+            }
+        }
+    </script>
 </head>
 <body>
-
     <svg height="1200" width="1000" xmlns="http://www.w3.org/2000/svg">
 
         <!-- Grid -->
@@ -24,10 +95,112 @@
 
         <rect width="100%" height="100%" fill="url(#grid)" />
 
+        <g class="bg window">
+            <path d="
+                M 930 170 
+                l -310 140 
+                q -11 8 -11 20 
+                l 8 340 
+                q 0 18 20 20 
+                l 290 -35 
+            " />
+            <path d="
+                M 930 160 
+                l -320 150 
+                q -11 8 -11 20 
+                l 9 340 
+                q 3 29 35 28 
+                l 290 -35 
+            " />
+            <path d="
+                M 930 160 
+                l -320 150 
+                q -17 5 -19 28 
+                l 12 330 
+                q 3 29 35 30 
+                l 290 -35 
+            " />
+            <path d="
+                M 930 139 
+                l -320 155 
+                q -24 10 -26 42 
+                l 12 330 
+                q 3 35 35 35 
+                l 290 -35 
+            " />
 
+        </g>
 
+        <g class="bg ceiling">
+            <line x1="0" y1="500" x2="800" y2="0" />
 
-        <path d="M930 170 l-310 140" style="fill:none;stroke:green;stroke-width:3" />
+            <line x1="0" y1="485" x2="780" y2="0" />
+            <line x1="0" y1="483" x2="770" y2="0" />
+
+            <line x1="0" y1="480" x2="747" y2="0" />
+            <line x1="0" y1="480" x2="732" y2="0" />
+
+            <line x1="0" y1="480" x2="710" y2="0" />
+            <line x1="0" y1="476" x2="695" y2="0" />
+            
+            <line x1="0" y1="470" x2="670" y2="0" />
+            <line x1="0" y1="470" x2="660" y2="0" />
+
+            <g>
+                <g id="refHandrail" class="bg handrail">
+                    <path d="
+                        M 747 35
+                        a 1 7 0 0 0 -1 20
+                        h -10
+                        a -1 -7 0 0 0 -1 -20
+                    " />
+                    <ellipse rx="20" ry="50" cx="740" cy="150" />
+                    <ellipse rx="10" ry="35" cx="740" cy="150" />
+                    <rect x="735" y="75" width="10" height="45" rx="5" />
+                    <rect x="730" y="50" width="20" height="30" rx="5" />
+                </g>
+                <use href="#refHandrail" style="transform: translate(-80px, 50px);" />
+                <use href="#refHandrail" style="transform: translate(-150px, 93px);" />
+                <use href="#refHandrail" style="transform: translate(-231px, 136px);" />
+            </g>
+        </g>
+
+        <g class="bg chair">
+            <path id="refChairCurve" d="
+                M 920 690
+                q -20 100 -10 220
+            " />
+            <!-- <use href="#refChairCurve" style="transform: translate(-230px, 10px);" /> -->
+            <!-- <use href="#refChairCurve" style="transform: translate(-390px, 10px);" /> -->
+            <!-- <line x1="930" y1="690" x2="520" y2="730" /> -->
+            <path d="
+                M 930 690
+                L 530 730
+                q -40 100 -20 158
+                L 680 900
+                q -20 -100 10 -185
+                M 680 900
+                L 930 910
+            " />
+            <path d="
+                M 890 915
+                l -100 10
+                l 100 -5
+                l -100 7
+            " class="pencil" />
+
+        </g>
+
+        <!-- <path d="M 0,0 h 100 v 100 h -100 z
+           M 20,20 v  60 h  60 v  -60 z" />  -->
+
+        <!-- <path d="M930 170 l-310 140 a 1 2 45 0 0 -10 21 " /> -->
+        
+        <!-- <path d="M300 100 a 3 1 0 1 0 200 0 " style="fill:none;stroke:rgb(0, 128, 0);stroke-width:3" /> -->
+
+        <!-- <rect x="620" y="300" width="100" height="100" rx="15" /> -->
     </svg>
+
+    
 </body>
 </html>
